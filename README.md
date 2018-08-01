@@ -21,17 +21,13 @@
     + `PUT /api/v1/bot/bots/{id}` - [Update a bot](#update-a-bot)
     + `GET /api/v1/bot/bots/{id}` - [Get a bot by id](#get-a-bot-by-id)
     + `DELETE /api/v1/bot/bots/{id}` - [Remove a bot](#remove-a-bot)
-    + `GET /api/v1/bot/bots/{id}/export` - [Export a bot](#export-a-bot)
+    + `POST /api/v1/bot/bots/{id}/export` - [Export a bot](#export-a-bot)
     + `POST /api/v1/bot/bots/{id}/import` - [Import a bot](#import-a-bot)
     + `POST /api/v1/bot/bots/{id}/train` - [Train a bot](#train-a-bot)
-    + `GET /api/v1/bot/bots/{id}/trainStatus`  - [Get the bot train status](#get-the-bot-train-status)
     + `GET /api/v1/bot/bots/{id}/availability`  - [Check if the bot is available](#check-if-the-bot-is-available)
     + `POST /api/v1/bot/bots/{id}/test`  - [Test a bot](#test-a-bot)
-    + `GET /api/v1/bot/bots/{id}/checkName`  - [Check if the bot name is exists](#check-if-the-bot-name-is-exists)
     + `POST /api/v1/bot/bots/{id}/sendMessage` - [Callback for webview, send message to visitor](#callback-for-webview,-send-message-to-visitor)
-    + `POST /api/v1/bot/bots/{id}/queryIntent` - [chat with bot, rate bot answer](#chat-with-bot,-rate-bot-answer-as-helpful-or-not-helpful)
-    + `GET /api/v1/bot/bots/{id}/checkQuestionUnique`  - [Check if the Question exists in the bot](#check-if-the-question-exists-in-the-bot)
-    + `POST /api/v1/bot/bots/{id}/images`  - [Upload image for a bot](#upload-image-for-a-bot)
+    + `POST /api/v1/bot/bots/{id}/queryIntent` - [chat with bot](#chat-with-bot)
 
 ### Bot Related Object Json Format
 
@@ -49,7 +45,9 @@
   | `question` | string  | no | yes | question of the chat |
   | `intentId` | integer  | no | yes | intentId of the bot |
   | `chatId` | integer  | no | yes | chatId of the chat |
-  | `questionId` | integer  | no | yes | questionId of the bot |
+  | `senderId` | integer  | no | no | senderId of the chat |
+  | `senderType` | integer  | no | no | senderId of the chat |
+  | `questionId` | string  | no | yes | questionId of the bot |
   | `campaignId` | integer  | no | yes | id of the campaign setting |
   | `visitorInfo` | [VisitorInfo](#visitorInfo)  | no | yes | visitor info object |
 
@@ -68,7 +66,7 @@
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `id` | integer | no | yes | id of the visitor |
+  | `id` | integer | yes | no | id of the visitor |
   | `longitude` | float | no | no | longitude of the visitor location |
   | `latitude` | float | no | no | latitude of the visitor location |
   | `page_views` | integer | no | yes | count of the visited |
@@ -100,7 +98,7 @@
   | `time_zone` | string | no | yes | time zone of the visitor |
   | `visit_time` | string | no | yes | time of the visitor |
   | `visits` | integer | no | yes | count of the visited |
-  | `ssoId` | integer | no | no | sso id |
+  | `ssoId` | string | no | no | sso id |
 
 #### CustomFields
 
@@ -108,7 +106,7 @@
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `id` | integer  | no | yes | id of the field |
+  | `id` | integer  | yes | no | id of the field |
   | `name` | string  | no | yes | name of the field |
   | `value` | string  | no | yes | value of the field |
 
@@ -132,10 +130,9 @@
   | `question` | string | no | no | question of the chat |
   | `siteId` | integer  | no | yes | siteId of the bot |
   | `visitorId` | integer  | no | yes | id of the visitor |
-  | `ifNotify` | boolean  | no | yes | notify agent,`true` or `false` |
   | `senderType` | string  | no | yes | type of the sender,including `agent` and `bot` |
   | `intentId` | integer  | no | yes | id of the intent |
-  | `questionId` | integer  | no | yes | id of the intent question |
+  | `questionId` | string  | no | yes | id of the intent question |
   | `ifRate` | boolean  | no | yes | rate chat,`true` or `false` |
   | `content` | object | no | yes | response's content. when type is signIn, it represents [SignInResponse](#signinresponse);when type is viaForm or viaPrompts ,it represents [EntityCollectionResponse](#entitycollectionresponse);when type is highConfidenceAnswer, it represents [HighConfidenceResponse](#highconfidenceresponse); when type is possibleAnswer,it represents [PossibleResponse](#possibleresponse);when type is noAnswerResponse,it represents [NoAnswerResponse](#noanswerresponse);when type is requestLocationResponse, it represents [RequestLocationResponse](#requestlocationresponse). |
 
@@ -160,7 +157,6 @@
   | `agents` | array  | no | yes | an array of string |
   | `agentOfflineMessage` | string  | no | yes | message of the agent off line |
   | `visitorSegmentId` | string  | no | yes | id of the visitor segment |
-  | `visitorSegmentId` | string  | no | yes | id of the visitor segment |
 
 #### SignInResponse
 
@@ -171,7 +167,7 @@
   | `signInMessage` | string  | no | yes | message of the sign in |
   | `signInLinkText` | string  | no | yes | text of the sign in link |
   | `isSSO` | boolean  | no | yes | is sso,`true` or `false` |
-  | `singInURL` | string  | no | yes | url of the sign in |
+  | `signInURL` | string  | no | yes | url of the sign in |
   | `customVariable` | string  | no | yes | custom variable |
   | `openIn` | string  | no | yes | it is a Enum string. with options `sideWindow`, `newWindow`, `currentWindow` |
 
@@ -201,6 +197,9 @@
   | - | - | :-: | :-: | - | 
   | `formMessage` | string  | no | yes | name of the field |
   | `formTitle` | string  | no | yes | name of the field |
+  | `submitButtonText` | string  | no | yes | submit button text |
+  | `cancelButtonText` | string  | no | yes | cancel button text |
+  | `confirmButtonText` | string  | no | yes | confirm button text |
   | `fields` | [Fields](#fields)  | no | yes | an array of fields |
 
 #### Fields
@@ -209,9 +208,9 @@
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `fieldValue` | string  | no | yes | name of the field |
-  | `fieldTitle` | string  | no | yes | title of the field |
-  | `fieldType` | string  | no | yes | type of the field,including `text`、`textArea`、`radio`、`checkBox`、`dropDownList`、`checkBoxList`、`attachment`、`rating`、`wrapUpCategory` and `wrapUpComment` |
+  | `value` | string  | no | yes | name of the field |
+  | `name` | string  | no | yes | title of the field |
+  | `type` | string  | no | yes | type of the field,including `text`、`textArea`、`radio`、`checkBox`、`dropDownList`、`checkBoxList`、`attachment`、`rating`、`wrapUpCategory` and `wrapUpComment` |
   | `isRequired` | boolean  | no | yes | is require, `true` or `false` |
   | `isMasked` | boolean  | no | yes | is mask,`true` or `false` |
   | `options` | array  | no | yes | an array of string entity collecion prompts |
@@ -223,7 +222,8 @@
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
   | `possibleResponsesMessage` | string  | no | yes | message of the possible responses |
-  | `intents` | [IntentBase](#intentbase)  | no | yes | an array of intents  |
+  | `intentBase.id` | int  | no | yes | an array of intents  |
+  | `intentBase.name` | string  | no | yes | an array of intents  |
   | `smartTriggerActions` | [SmartTriggerAction](#smarttriggeraction)  | no | yes | an array of smart trigger actions |
 
 #### NoAnswerResponse
@@ -257,12 +257,8 @@
   | `intentName` | string  | no | yes | name of the intent |
   | `score` | float  | no | yes | score of match intent |
   | `noAnswerScore` | float  | no | yes | no answer score of the settings |
-  | `type` | string  | no | yes | type of the response,including `form`、`signIn`、`text` and `location` and `prompts` |
-  | `promptsResponse` | [ViaPrompts](#viaprompts)  | no | yes | an array of via prompts |
-  | `formResponse` | [ViaForm](#viaForm)  | no | yes | an via form object |
-  | `signInResponse` | [SignInResponse](#signinresponse) | no | yes | sign in response object |
-  | `textResponse` | string  | no | yes | message of the response |
-  | `locationResponse` | [RequestLocationResponse](#requestlocationresponse) | no | yes | Request location response object |
+  | `type` | string  | no | yes | type of the response,including `form`、`signIn`、`response` and `location` and `prompts` |
+  | `answer` | object  | no | yes | type of the answer,including [ViaPrompts](#viaprompts)、[ViaForm](#viaForm) 、list of [Response](#response-object)、[SignInResponse](#signinresponse) and [RequestLocationResponse](#requestlocationresponse) |
 
 #### RateParameter
 
@@ -271,7 +267,7 @@
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
   | `isHelpful` | boolean  | no | yes | whether bot answer is helpful,`true` or `false` |
-  | `questionId` | integer  | no | yes | questionId of the bot |
+  | `questionId` | string  | no | yes | questionId of the bot |
   | `chatId` | integer  | no | yes | chatId of the chat |
   | `visitorInfo` | [VisitorInfo](#visitorinfo)  | no | yes | visitor info object |
 
@@ -289,11 +285,11 @@
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `name` | string  | no | yes | name of the campaign |
-  | `language` | string  | no | yes | language of the campaign |
+  | `name` | string  | no | yes | name of the bot |
+  | `language` | string  | no | yes | language of the bot |
 
-#### BotWithCampaign
-  BotWithCampaign is represented as simple flat JSON objects with the following keys:  
+#### BotBasic
+  Bot is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
@@ -303,26 +299,6 @@
   | `avatarName` | string  | no | yes | avatar name of the bot |  
   | `avatarUrl` | string  | no | yes | avatar url of the bot |  
   | `isTrained` | bool  | no | yes | if the bot is trained |  
-  | `noResponseMessage` | string  | no | yes | no response message |  
-  | `isShowAgentLinkWhenNoResponse` | string  | no | yes | is show agent link when no response from bot |  
-  | `notHelpfulMessage` | string  | no | yes | not helpful message |  
-  | `isShowAgentLinkWhenNotHelpful` | string  | no | yes | is show agent link when not helpful from bot |  
-  | `possibleResponsesMessage` | string  | no | yes | possible responses message |  
-  | `possibleResponsesThreshold` | string  | no | yes | possible responses threshold |  
-  | `isShowAgentLinkWhenPossibleResponsesThreshold` | string  | no | yes | is show agent link when possible responses threshold |  
-  | `possibleResponsesExceedThresholdMessage` | string  | no | yes | possible responses exceed threshold message |  
-  | `agentIsOnlineText` | string  | no | yes | agent is online text |  
-  | `agentIsOfflineText` | string  | no | yes | agent is offline text |  
-  | `transferAgentMessege` | string  | no | yes | transfer agent messege |  
-  | `leaveAMessageClickedMessege` | string  | no | yes | leave a message button clicked messege |  
-  | `requestVisitorLocationMessege` | string  | no | yes | request visitor location messege |  
-  | `locationButtonText` | string  | no | yes | location button text |  
-  | `submitButtonText` | string  | no | yes | submit button text |  
-  | `cancelButtonText` | string  | no | yes | cancel button text |  
-  | `confirmButtonText` | string  | no | yes | confirm button text |  
-  | `highConfidenceScore` | string  | no | yes | high confidence score |  
-  | `noAnswerScore` | string  | no | yes | no answer score |  
-  | `campaigns` | object  | no | yes | list of [Campaign](#campaign) Object |  
 
 #### Bot Object
   Bot is represented as simple flat JSON objects with the following keys:  
@@ -335,14 +311,14 @@
   | `avatarName` | string  | no | yes | avatar name of the bot |  
   | `avatarUrl` | string  | no | yes | avatar url of the bot |  
   | `isTrained` | bool  | no | yes | if the bot is trained |  
-  | `greetingMessage` | object  | no | yes | list of [Response](#response-object) Object | 
+  | `greetingMessage` | object  | no | yes | list of [GreetingMessage](#greetingmessage) Object | 
   | `noResponseMessage` | string  | no | yes | no response message |  
-  | `isShowAgentLinkWhenNoResponse` | string  | no | yes | is show agent link when no response from bot |  
+  | `isShowAgentLinkWhenNoResponse` | bool  | no | yes | is show agent link when no response from bot |  
   | `notHelpfulMessage` | string  | no | yes | not helpful message |  
-  | `isShowAgentLinkWhenNotHelpful` | string  | no | yes | is show agent link when not helpful from bot |  
+  | `isShowAgentLinkWhenNotHelpful` | bool  | no | yes | is show agent link when not helpful from bot |  
   | `possibleResponsesMessage` | string  | no | yes | possible responses message |  
-  | `possibleResponsesThreshold` | string  | no | yes | possible responses threshold |  
-  | `isShowAgentLinkWhenPossibleResponsesThreshold` | string  | no | yes | is show agent link when possible responses threshold |  
+  | `possibleResponsesThreshold` | int  | no | yes | possible responses threshold |  
+  | `isShowAgentLinkWhenPossibleResponsesThreshold` | int  | no | yes | is show agent link when possible responses threshold |  
   | `possibleResponsesExceedThresholdMessage` | string  | no | yes | possible responses exceed threshold message |  
   | `agentIsOnlineText` | string  | no | yes | agent is online text |  
   | `agentIsOfflineText` | string  | no | yes | agent is offline text |  
@@ -361,17 +337,17 @@
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `id` | integer  | yes | no | id of the bot |
-  | `name` | string  | no | yes | name of the bot |
-  | `url` | string  | no | yes | url of the bot |  
+  | `id` | integer  | yes | no | id of the Campaign |
+  | `name` | string  | no | yes | name of the Campaign |
+  | `url` | string  | no | yes | url of the Campaign |  
 
 #### NameUrl
   NameUrl is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `name` | string  | no | yes | name of the bot |
-  | `url` | string  | no | yes | url of the bot |  
+  | `name` | string  | no | yes | name of the object |
+  | `url` | string  | no | yes | url of the object |  
 
 #### SendMessageParameter
 
@@ -380,9 +356,10 @@
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
   | `channelType` | string  | no | yes |enums contain default,livechat,facebook and twitter.|
+  | `agentId` | integer  | no | yes | agentId of the chat |
   | `sessionId` | integer  | no | yes | sessionId of the chat |
   | `visitorId` | integer  | no | yes | visitorId of the chat |
-  | `messages` | [Response](#response-object)  | no | yes | an array of responses  |
+  | `messages` | list of [Response](#response-object)  | no | yes | an array of responses  |
 
 ### Bot End Points
 #### Get all bots of a site
@@ -396,7 +373,7 @@ query parameters
   - `siteId ` 
 
 ##### Response
-the response is: list of [BotWithCampaign](#botwithcampaign) Objects
+the response is: list of [BotBasic](#botbasic) Objects
 
 #### create a new bot
 
@@ -410,7 +387,7 @@ query parameters
 request body parameters: [CreateBot](#createbot) Object
 
 ##### Response
-the response : [Bot](#bot-object) Object
+the response :  [BotBasic](#botbasic) Object
 
 #### Update a bot
 
@@ -436,7 +413,7 @@ path parameters
   - `id`
 
 ##### Response
-When the Http Status Code is 200, the response is: list of [Bot](#bot-object) Objects
+When the Http Status Code is 200, the response is: [Bot](#bot-object) Objects
 
 #### Remove a bot
 
@@ -452,7 +429,7 @@ the response is: Http Status Code `200 OK`
 
 #### Export a bot
 
-  `GET /api/v1/bot/bots/{id}/export`
+  `POST /api/v1/bot/bots/{id}/export`
 
 ##### Parameters
 path parameters
@@ -475,30 +452,25 @@ path parameters
 
 query parameters
 
-  - `fileName`
+  - `file` -the file to be imported. Server will get the file by Request.files["file"]
 
 ##### Response
 the response is:
 
-  - `status ` -true or false
+when the status is `Processing `:
 
-#### Get the bot train status
+  - `status ` -enum values, `Succeeded `,`Failed `,`Processing `
+  - `operationId ` -true or false
 
-  `GET /api/v1/bot/bots/{id}/trainStatus`
+when the status is `Failed `:
 
-##### Parameters
-path parameters
-  
-  - `id`
+  - `status ` -enum values, `Succeeded `,`Failed `,`Processing `
+  - `failUrl ` -true or false
+  - `errorMessage ` -true or false
 
-query parameters
+when the status is `Succeeded `:
 
-  - `operationId` -the operation id of the train
-
-##### Response
-the response is:
-
-  - `operationId ` -the operation id of the train. When the train is finished successfully, it is empty.
+  - `status ` -enum values, `Succeeded `,`Failed `,`Processing `
 
 #### Train a bot
 
@@ -544,24 +516,6 @@ request body parameters
 ##### Response
 the response is: [TestBotResponse](#testbotresponse) Object 
 
-#### Check if the bot name is exists
-
-  `GET /api/v1/bot/bots/{id}/checkName`
-
-##### Parameters
-path parameters
-
-  - `id`
-
-query parameters
-
-  - `name`
-
-##### Response
-the response is:
-
-  - `isExists ` -true or false
-
 #### Callback for webview, send message to visitor
 
   `POST /api/v1/bot/bots/{id}/sendMessage`
@@ -580,7 +534,7 @@ request body parameters: [SendMessageParameter](#sendmessageparameter) Object
 ##### Response
 the response is: Http Status Code `200 OK`
 
-#### Chat with bot, rate bot answer as helpful or not helpful
+#### Chat with bot
 
   `POST /api/v1/bot/bots/{id}/queryIntent`
 
@@ -594,42 +548,6 @@ request body parameters: [QueryIntentParameter](#queryintentparameter) Object
 ##### Response
 the response is: [QueryIntentResponse](#queryintentresponse) Object             
 
-#### Check if the question exists in the bot
-
-  `GET /api/v1/bot/bots/{id}/checkQuestionUnique`
-
-##### Parameter
- path parameters
-
- - `id `
-
-query parameters
-
-  - `question `-a question of intent
-
-##### Response
-the response is:
-
-  `isExists` - true exists; false not exists.
-
-#### Upload image for a bot
-
-  `POST /api/v1/bot/bots/{id}/images`
-
-##### Parameters
-path parameters
-
-  - `id ` 
-
-request body parameters
-
-  - `file ` -the file content. it is a list
-
-##### Response
-the response is:
-
-  - `fileName` -the uploaded file full name
-
 ## Intent
 You need `Manage Bot` permission to manage Intent and customize the settings for a Intent.
   - `Intents` - Intent Manage
@@ -639,7 +557,6 @@ You need `Manage Bot` permission to manage Intent and customize the settings for
   +  `GET /api/v1/bot/bots/{botId}/intents/{id}` - [Get an intent](#get-an-intent)
   +  `DELETE /api/v1/bot/bots/{botId}/intents/{id}` - [Remove an intent](#remove-an-intent)
   +  `POST /api/v1/bot/bots/{botId}/intents/{id}/rating` - [Rate a bot answer as helpful or not helpful](#rate-a-bot-answer-as-helpful-or-not-helpful)
-  +  `GET /api/v1/bot/bots/{botId}/intents/{id}/checkName` - [Check if the intent name is exists](#check-if-the-intent-name-is-exists)
   +  `POST /api/v1/bot/bots/{botId}/intents/import` - [Import intents](#import-intents)
 
 ### Intent Related Ojbect Json Format
@@ -648,16 +565,15 @@ Intent is represented as simple flat json objects with the following keys:
 
 |Name| Type| Read-only    |Mandatory | Description   |
 | - | - | :-: | :-: | - | 
-| `id` | integer  | no | yes | id of the intent |
+| `id` | integer  | yes | no | id of the intent |
 | `name` | string  | no | yes | name of the intent |
 |`categoryId`| integer | no | yes | value of the custom field.|
 |`ifRequireDetailInfo` | bool | no | no | whether need visitor to provide more detail information.|
 |`entityCollectionType` | string | no | yes if ifRequireDetailInfo is true | enums contain viaForm and viaPrompts,this represents the way you want to collect  visitor's information. there are two options: viaForm and viaPrompts.|
-|`ifRequireConfirm` | bool | no | yes | whether need visitor to confirm after collect all detail information that bot needed.|
 |`ifRequireLocation` | bool | no | yes | whether need to collect visitor's location information.|
 |`questions`| array| no |yes | an array of [Question](#question).|
-|`entityCollectionFormFields`| array| no |yes if intentbasic.entityCollectionType is viaForm | an array of [EntityCollectionForm](#entitycollectionform).|
-|`entityCollectionPrompts`| array| no |yes if intentbasic.entityCollectionType is viaPrompts | an array of [EntityCollectionPrompt](#entitycollectionprompt).|
+|`entityCollectionForm`| object | no |yes if entityCollectionType is viaForm | an array of [EntityCollectionForm](#entitycollectionform).|
+|`entityCollectionPrompts`| array| no |yes if entityCollectionType is viaPrompts | an array of [EntityCollectionPrompt](#entitycollectionprompt).|
 |`answer`| object| no |yes | an item of [Answer](#answer).|
 
 #### IntentBasic
@@ -665,30 +581,16 @@ IntentBasic is represented as simple flat json objects with the following keys:
 
 |Name| Type| Read-only    | Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
-| `id` | integer  | no | yes | id of the intent |
+| `id` | integer  | yes | no | id of the intent |
 | `name` | string  | no | yes | name of the intent |
 |`categoryId`| integer | no | yes | value of the custom field.|
-|`ifRequireDetailInfo` | bool | no | no | whether need visitor to provide more detail information.|
-|`entityCollectionType` | string | no | yes if ifRequireDetailInfo is true | enums contain viaForm and viaPrompts,this represents the way you want to collect  visitor's information. there are two options: viaForm and viaPrompts.|
-|`ifRequireConfirm` | bool | no | yes | whether need visitor to confirm after collect all detail information that bot needed.|
-|`ifRequireLocation` | bool | no | yes | whether need to collect visitor's location information.|
 
-#### IntentBase
-
-  IntentBase is represented as simple flat JSON objects with the following keys:  
-
-  | Name | Type | Read-only | Mandatory | Description |    
-  | - | - | :-: | :-: | - | 
-  | `id` | integer  | no | yes | id of the intent |
-  | `name` | string  | no | yes | name of the intent |
-
-#### IntentSignInSettings
-IntentSignInSettings is represented as simple flat json objects with the following keys:
+#### AnswerSignInSettings
+AnswerSignInSettings is represented as simple flat json objects with the following keys:
 
 |Name| Type| Read-only    | Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
 |`id` | integer  | yes | no |id of the current item.|
-|`channelType` | string  | no | yes |enums contain default,livechat,facebook and twitter.|
 |`signInMessage` | string  | no | yes |text sent to visitor before signin in button.|
 |`signInLinkText` | string  | no | yes |text on signin button.|
 |`isSSO` | string  | no | yes |whether is single sign on.|
@@ -723,6 +625,7 @@ EntityCollectionForm is represented as simple flat json objects with the followi
 | - | - | :-: | :-: | - | 
 |`formMessage` | string | no | yes if entityCollectionType is viaForm | when entityCollectionType is viaForm, this is a message that will be sent before the button.|
 |`formTitle` | string | no | yes if entityCollectionType is viaForm | when entityCollectionType is viaForm,a button will be sent to visitor if bot need to collect detail information,visitor can click this button to open the form to fillout information. this is the text on this button,and also this is the title of that form.|
+|`ifRequireConfirm` | bool | no | yes | whether need visitor to confirm after collect all detail information that bot needed.|
 |`formFields` | array | no | no |an array of of [EntityCollectionFormField](#entitycollectionformfield) |
 
 #### EntityCollectionFormField
@@ -731,10 +634,10 @@ EntityCollectionFormField is represented as simple flat json objects with the fo
 |Name| Type| Read-only    | Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
 |`id` | integer  | yes | no |id of the current item. |
-|`fieldType` | string | no | yes |enums contain test ,testArea,radioBox ,checkBox ,dropDownList ,checkBoxList, this is the type of fields appear on the form. |
+|`fieldType` | string | no | yes |enums contain text ,textArea,radioBox ,checkBox ,dropDownList ,checkBoxList, this is the type of fields appear on the form. |
 |`fieldName` | string | no | yes |this is the field's name appear on the form. |
 |`entityId` | integer | no | yes |id of entity marked on one question. |
-|`entityLabel` | string | no | yes |label to distinguish same entity marked on one question. |
+|`label` | string | no | yes |label to distinguish same entity marked on one question. |
 |`isRequired` | bool | no | yes |it marks whether the field appear on the form is required or not. |
 |`isMasked` | bool | no | yes |if this is true,visitor's information will replaced by anonymous symbol in chat logs. |
 |`options` | array | no | no |an array of of string |
@@ -746,8 +649,8 @@ EntityCollectionPrompt is represented as simple flat json objects with the follo
 | - | - | :-: | :-: | - | 
 |`id` | integer  | yes | no |id of the current item. |
 |`entityId` | integer | no | yes |id of entity marked on one question. |
-|`entityLabel` | string | no | yes |label to distinguish same entity marked on one question. |
-|`prompts` | array | no | yes |an array of string |
+|`label` | string | no | yes |label to distinguish same entity marked on one question. |
+|`questions` | array | no | yes |an array of string |
 |`options` | array | no | no |an array of string |
 
 #### TextResponse
@@ -755,24 +658,13 @@ TextResponse is represented as simple flat json objects with the following keys:
 
 |Name| Type| Read-only    |Mandatory | Description  |  
 | - | - | :-: | :-: | - | 
-|`id` | integer  | yes | no |id of the current item. |
 |`texts` | array | no | yes |an array of list strings. |
-
-#### ImageResponse
-ImageResponse is represented as simple flat json objects with the following keys:
-
-|Name| Type| Read-only    |Mandatory | Description     | 
-| - | - | :-: | :-: | - | 
-|`id` | integer  | yes | no |id of the current item.  | 
-|`name` | string | no | yes |name of the image you choosed.  | 
-|`url` | string | no | yes |url of the image you choosed.  | 
 
 #### UrlResponse
 UrlResponse is represented as simple flat json objects with the following keys:
 
 |Name| Type| Read-only    |Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
-|`id` | integer  | yes | no |id of the current item.  | 
 |`url` | string | no | yes |url of the video you choosed.  | 
 
 #### ComplexResponse
@@ -780,16 +672,14 @@ ComplexResponse is represented as simple flat json objects with the following ke
 
 |Name| Type| Read-only    |Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
-|`id` | integer  | yes | no |id of the current item.  | 
-|`complexText` | string | no | yes |html text updated from old data.  | 
+|`text` | string | no | yes |html text updated from old data.  | 
 
 #### QuickReplyResponse
 QuickReplyResponse is represented as simple flat json objects with the following keys:
 
 |Name| Type| Read-only    |Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
-|`id` | integer  | yes | no |id of the current item.  | 
-|`responseText` | string | no | yes |text sent before quickreplys.  | 
+|`text` | string | no | yes |text sent before quickreplys.  | 
 |`quickReplyId` | integer | no | yes |id of quickreply you choosed.  | 
 
 #### ButtonResponse
@@ -797,8 +687,7 @@ ButtonResponse is represented as simple flat json objects with the following key
 
 |Name| Type| Read-only    |Mandatory | Description   |   
 | - | - | :-: | :-: | - | 
-|`id` | integer  | yes | no |id of the current item.  | 
-|`responseText` | string | no | yes |text above buttons,this text will be sent before buttons.  | 
+|`text` | string | no | yes |text above buttons,this text will be sent before buttons.  | 
 |`buttons` | array | no | yes |an array of [Button](#button).  | 
 
 #### Button
@@ -807,8 +696,8 @@ Button is represented as simple flat json objects with the following keys:
 |Name| Type| Read-only    |Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
 |`id` | integer  | yes | no |id of the current item.  | 
-|`buttonText` | string | no | yes |text on button.  | 
-|`buttonType` | string | no | yes |enums contain goToIntent,link and webView,type of buttons  | 
+|`text` | string | no | yes |text on button.  | 
+|`type` | string | no | yes |enums contain goToIntent,link and webView,type of buttons  | 
 |`linkUrl` | string | no | yes if buttonType is link or webView|url of the web page you want to open.  | 
 |`intentId` | string | no | yes if buttonType is goToIntent | id of the intent you choosed.  | 
 |`intentName` | string | no | yes if buttonType is goToIntent | the name of the intent you choosed.  | 
@@ -820,41 +709,54 @@ Answer is represented as simple flat json objects with the following keys:
 
 |Name| Type| Read-only    |Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
-|`defaultChannel`| object| no |no | an object of [AnswerSubItem](#answersubitem),but AnswerSubItem.response.type can not be image,video,webhook,complex.  | 
+|`default`| object| no |no | an object of [AnswerSubItem](#answersubitem),but AnswerSubItem.response.type can not be image,video,webhook,complex.  | 
 |`livechat`| object| no |no | an object of [AnswerSubItem](#answersubitem).  | 
 |`facebook`| object| no |no | an object of [AnswerSubItem](#answersubitem),but AnswerSubItem.response.type can not be complex.  | 
 |`twitter`| object| no |no | an object of [AnswerSubItem](#answersubitem),but AnswerSubItem.response.type can not be complex.  | 
+
+#### GreetingMessage
+GreetingMessage is represented as simple flat json objects with the following keys:
+
+|Name| Type| Read-only    |Mandatory | Description     | 
+| - | - | :-: | :-: | - | 
+|`default`| list of object | no |no | list of [Response](#response-object),but response.type can not be image,video,webhook,complex.  | 
+|`livechat`| list of object | no |no | list of [Response](#response-object).  | 
+|`facebook`| list of object | no |no | list of [Response](#response-object),but response.type can not be complex.  | 
+|`twitter`| list of object | no |no | list of [Response](#response-object),but response.type can not be complex.  | 
 
 #### AnswerSubItem
 AnswerSubItem is represented as simple flat json objects with the following keys:
 
 |Name| Type| Read-only    |Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
-|`responses`| aray| no |no | an array of [Response](#response-object)  | 
-|`isNeedSignInBeforeBotRespond`| bool| no |yes | whether need sign in when bot response visitor's question     | 
-|`intentSignInSettings`| object| no |yes if isNeedSignInBeforeBotRespond is true | an item of [IntentSignInSettings](#intentsigninsettings)  | 
+|`responses`| list of object | no |no | an array of [Response](#response-object)  | 
+|`ifNeedSignIn`| bool | no |yes | whether need sign in when bot response visitor's question     | 
+|`signInSettings`| object | no |yes if isNeedSignInBeforeBotRespond is true | an item of [AnswerSignInSettings](#answersigninsettings)  | 
 
 #### Response Object
 Response is represented as simple flat json objects with the following keys:
 
 |Name| Type| Read-only    |Mandatory | Description     | 
 | - | - | :-: | :-: | - | 
+|`id` | integer  | yes | no |id of the current item.  | 
 |`type` | string | no | yes |enums contain text,image,video,webhook,button,quickReply,complex.  | 
-|`content` | object | no | yes |response's content. when type is text, it represents [TextResponse](#textresponse);when type is image ,it represents [ImageResponse](#imageresponse);when type is video, it represents [VideoResponse](#urlresponse); when type is webhook,it represents [WebhookResponse](#urlresponse);when type is button,it represents [ButtonResponse](#buttonresponse);when type is quickReply, it represents [QuickReplyResponse](#quickreplyresponse);when type is complex,it represents   [ComplexResponse](#complexresponse).  | 
+|`content` | object | no | yes |response's content. when type is text, it represents [TextResponse](#textresponse);when type is image ,it represents [ImageResponse](#nameurl);when type is video, it represents [VideoResponse](#urlresponse); when type is webhook,it represents [WebhookResponse](#urlresponse);when type is button,it represents [ButtonResponse](#buttonresponse);when type is quickReply, it represents [QuickReplyResponse](#quickreplyresponse);when type is complex,it represents   [ComplexResponse](#complexresponse).  | 
 
 #### Create a new intent
 
   `POST /api/v1/bot/bots/{botId}/intents`
 
 ##### Parameters
-
   path parameters
 
-  + `botId` - required , id of current bot
+  - `botId` - required , id of current bot
+
+  query parameters
+
+  - `learningQuestionId` - int,id from visitor's  not matched  questions,optional
 
   request body parameters
 
-  - `learningQuestionId` - int,id from visitor's  not matched  questions,optional
   - `intent` - an item of [Intent](#intent-object),required
 
 ##### Response
@@ -867,14 +769,16 @@ the response is:
   `PUT /api/v1/bot/bots/{botId}/intents/{id}`
 
 ##### Parameters
-path parameters
+  path parameters
 
   - `id`
   - `botId` - required , id of current bot
+  query parameters
+
+  - `learningQuestionId` - int,id from visitor's  not matched  questions,optional
 
   request body parameter
 
-  - `learningQuestionId` - int,optional,id from visitor's  not matched  questions
   - `intent` - an item of [Intent](#intent-object),required
 
 ##### Response
@@ -943,25 +847,6 @@ request body parameters: [RateParameter](#rateparameter) Object
 
 ##### Response
 the response is: [RateResponse](#rateresponse) Object 
-    
-#### Check if the intent name is exists
-##### End Point
-  `GET /api/v1/bot/bots/{botId}/intents/{id}/checkName`
-
-##### Parameter
- path parameters
-
- - `botId `
- - `id `  -if new, it is -1
- 
-query parameters
-
-  - `name ` -name of intent
-
-##### Response
-the response is:
-
-  `isExists` - true exists; false not exists.
 
 #### Import intents
 
@@ -971,10 +856,11 @@ the response is:
 path parameters
 
   - `botId` 
+  - `mode` - enum values, `increment` or `overwrite`
  
 query parameters
 
-  - `fileName` -the uploaded intent file full name.
+  - `file` -the file to be imported. Server will get the file by Request.files["file"]
 
 ##### Response
 the response is:
@@ -989,7 +875,6 @@ the response is:
     + `PUT /api/v1/bot/bots/{botId}/entities/{id}` - [Update an entity](#update-an-entity)
     + `DELETE /api/v1/bot/bots/{botId}/entities/{id}` - [Remove an entity](#remove-an-entity)
     + `GET /api/v1/bot/bots/{botId}/entities/{id}` - [Get an entity by id](#get-an-entity-by-id)
-    + `GET /api/v1/bot/bots/{botId}/entities/{id}/checkName` - [Check if the entity name is exists](#check-if-the-entity-name-is-exists)
     + `POST /api/v1/bot/bots/{botId}/entities/import` - [Import entities](#import-entities)
 
 ### Entity Related Objects Json Format
@@ -1000,7 +885,9 @@ the response is:
   | - | - | :-: | :-: | - | 
   | `id` | integer  | yes | no | id of the Entity |
   | `name` | string  | no | yes | name of the Entity |
-  | `subItems` | list of [EntityKeyword](#entitykeyword) Objects   | no | yes | keyword and the synonyms list of the keyword |
+  | `displayName` | string  | no | yes | display name of the Entity |
+  | `type` | string  | no | yes | type of the Entity, it is a enum value. `entity` or `systemEntity` |
+  | `keywords` | list of [EntityKeyword](#entitykeyword) Objects   | no | yes | keyword and the synonyms list of the keyword |
 
 #### EntityKeyword
  EntityKeyword is represented as simple flat JSON objects with the following keys:  
@@ -1008,8 +895,9 @@ the response is:
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
   | `id` | integer  | yes | no | id of the Entity |
-  | `keyWord` | string  | no | yes | name of the Entity |
+  | `keyword` | string  | no | yes | name of the Entity |
   | `synonyms` | list of string  | no | yes | synonyms list of keyword |
+
 
 ### Entity End Points
 #### Get entities by entity name/keyword/synonym
@@ -1094,32 +982,12 @@ path parameters
 
 query parameters
 
-  - `fileName` 
+  - `file` -the file to be imported. Server will get the file by Request.files["file"]
 
 ##### Response
 the response is:
 
   - `fileName` -a file which records the failed import entities.
-
-
-#### Check if the entity name is exists
-
-  `GET /api/v1/bot/bots/{botId}/entities/{id}/checkName`
-
-##### Parameters
-path parameters
-
-  - `botId`
-  - `id ` - -1 for new, or update.
-
-query parameters
-
-  - `name ` -name of entity
-
-##### Response
-the response is:
-
-  - `isExists` - true exists, false not exists.
 
 ## Category
   You need `Manage Bot` permission to manage bot category and customize the settings for a bot category.
@@ -1128,7 +996,6 @@ the response is:
     + `POST /api/v1/bot/bots/{botId}/categories` - [Create a new category](#create-a-by-new-category)
     + `PUT /api/v1/bot/bots/{botId}/categories/{id}` - [Update a category](#update-a-category)
     + `DELETE /api/v1/bot/bots/{botId}/categories/{id}` - [Remove a category](#remove-a-category)
-    + `POST /api/v1/bot/bots/{botId}/categories/{id}` - [Move a category as a subcategory of another category](#move-a-category-as-a-subcategory-of-another-category)
 
 ### Category Related Object Json Format
 #### Category
@@ -1139,7 +1006,7 @@ the response is:
   | `id` | integer  | yes | no | id of the Category |
   | `name` | string  | no | yes | name of the Category |
   | `parentId` | integer  | no | yes | parent Id of the Category |
-  | `level` | integer  | no | yes | level of the Category |
+  | `botId` | integer  | no | yes | bot id of the Category |
 
 ### Category End Points
 #### Get all categories of the bot
@@ -1196,23 +1063,6 @@ path parameters
 ##### Response
 the response is: Http Status Code `200 OK`
 
-#### Move a category as a subcategory of another category
-
-  `POST /api/v1/bot/bots/{botId}/categories/{id}`
-
-##### Parameters
-path parameters
-
-  - `botId`  
-  - `id ` -the category id which will be moved.
-
-query parameters
-
-  - `targetId ` -the target category id
-
-##### Response
-the response is: Status `200 OK`
-
 ## Smart Trigger
   You need `Manage Bot` permission to manage Smart Triggers.
   - `Smart Triggers` - Smart Trigger Manage
@@ -1221,8 +1071,7 @@ the response is: Status `200 OK`
     + `GET /api/v1/bot/bots/{botId}/smartTriggers/{id}`  -[Get a smart trigger by id](#get-a-smart-trigger-by-id)
     + `PUT /api/v1/bot/bots/{botId}/smartTriggers/{id}`  -[Update a smart trigger](#update-a-smart-trigger)
     + `DELETE /api/v1/bot/bots/{botId}/smartTriggers/{id}`  -[Remove a smart trigger](#remove-a-smart-trigger)
-    + `GET /api/v1/bot/bots/{botId}/smartTriggers/{id}/checkName`  -[Check if the smart trigger name is exists](#check-if-the-smart-trigger-name-is-exists)
-    + `POST /api/v1/bot/bots/{botId}/smartTriggers/{id}/copy` -[Copy a smart trigger as a new smart trigger](#copy-a-smart-trigger-as-a-new-smart-trigger)
+    + `PUT /api/v1/bot/bots/{botId}/smartTriggers/order`  -[Update the order of smart triggers](#update-the-order-of-smart-trigger-)
 
 ### Smart Trigger Related Ojbect Json Format
 #### TriggerRule
@@ -1233,7 +1082,7 @@ the response is: Status `200 OK`
   | - | - | :-: | :-: | - |
   | `id` | integer | yes | no |id of the smart trigger. |
   | `name` | string | no | yes |name of smart trigger. |
-  | `isEnabled` | boolean | yes | yes |smartTriggers if is enabled. |
+  | `isEnabled` | boolean | no | no |smartTriggers if is enabled. the default value is false.|
   | `conditions` | [Conditions](#conditions) | no | no |[Conditions](#conditions) object. |
   | `actions` | array | no | no |an array of [Action](#action) object. |
 
@@ -1242,80 +1091,46 @@ the response is: Status `200 OK`
 
   | Name | Type | Read-only | Mandatory | Description |
   | - | - | :-: | :-: | - |
-  | `expressionType` | string | no | yes | the relationship between condition.  exp: [all,or,expression]|
-  | `expression` | string | no | no | the rule of expression. |
-  | `list` | array | no | no | an array of  [Condition](#condition) object. |
+  | `when` | string | no | yes | the relationship between condition.  exp: [all,or,expression]|
+  | `expression` | string | no | no |A formula to calculate exp:(1 or 2) and 3  |
+  | `items` | array | no | no | an array of  [Condition](#condition) object. |
 
  #### Condition
   Condition is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |
   | - | - | :-: | :-: | - |
-  | `id` | string | no | yes | id of the condition |
-  | `name` | string | no | no | name of the condition |
-  | `Expression` | [Expression](#expression) | no | yes |  [Expression](#expression) object.  |
+  | `variable` | string | no | no | value of the Condition |
+  | `expression` | string | no | yes |  the rule of expression.exp:[equal,notEqual,contains,notContains,regularExpression,lessThan,moreThan] |
   | `values` | array | no | yes | an string array of condition matching value |
  
- #### Expression
-   Expression is represented as simple flat JSON objects with the following keys:  
-
-  | Name | Type | Read-only | Mandatory | Description |
-  | - | - | :-: | :-: | - |
-  | `id` | string | no | yes | id of the Expression.|
-  | `name` | string | no | no | name if of Expression. |
-
 ####  Action
   Action is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |
   | - | - | :-: | :-: | - |
-  | `actionType` | string | no | yes | the type of the action. exp:[notifications,monitor,transfer,changeAssignee,segment]|
-  | `name` | string | no | no |  name of this action. |
-  | `describe` | string | no | no |  describe of this action. |
+  | `type` | string | no | yes | the type of the action. exp:[notifications,monitor,transfer,changeAssignee,segment]|
   | `isEnabled` | boolean | no | yes | action if is enabled. |
-  | `tagetType` | string | no | no | The trigger action target type. exp:[department,agent] |
-  | `departments` | array | no | no | an  array of  [Value](#value). |
-  | `agents` | array | no | no | an  array of [Value](#value). |
-  | `visitorSegmentId` | integer | no | no | visitor segment Id |
-  | `visitorSegmentName` | string | no | no | visitor segment name |
+  | `target` | [Target](#target) | no | no |  action target |
   | `agentOfflineMessage` | string | no | no | agent offlineMessage prompt message |
 
- #### SmartTriggerConfig
-   SmartTriggerConfig is represented as simple flat JSON objects with the following keys:  
+####  Target
+  Action is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |
   | - | - | :-: | :-: | - |
-  | `conditions` | array | no | yes |the list of [ConditionItem](#conditionitem-list).|
-  | `expressions` | array | no | yes | the list of  [Expressions](#expressions). |
-  | `actions` | array | no | yes |  the list of  [Action](#action). |
+  | `type` | string | no | no | The trigger action target type. exp:[department,agent] |
+  | `departments` | array | no | no | an integer array of  department id. |
+  | `agents` | array | no | no | an integer  array of  agent id. |
+  | `visitorSegmentId` | integer  | no | no | visitor Segment Id |
 
- #### ConditionItem
-   ConditionItem is represented as simple flat JSON objects with the following keys:  
-
-  | Name | Type | Read-only | Mandatory | Description |
-  | - | - | :-: | :-: | - |
-  | `id` | string | no | yes | id of the condition.|
-  | `name` | string | no | yes | name if of condition. |
-  | `group` | string | no | yes | group name of  condition. |
-  | `expressionsType` | string | no | yes | the type of expressions. exp:[string,accurate,digital] |
-  | `valueType` | string | no | yes | the type of value. exp:[single ,multiple] |
-  | `values` | array | no | no | the list of  [Value](#value)|
-
- #### Value
-   Value is represented as simple flat JSON objects with the following keys:  
+  ####  Order
+  Action is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |
   | - | - | :-: | :-: | - |
-  | `id` | integer | no | yes |  condition can  selected value id |
-  | `name` |  string  | no | no | condition can  selected value name  |
-
- #### Expressions
-   Expressions is represented as simple flat JSON objects with the following keys:  
-
-  | Name | Type | Read-only | Mandatory | Description |
-  | - | - | :-: | :-: | - |
-  | `expressionsType` | string | no | yes | the type of expressions. exp:[string,accurate,digital] |
-  | `list` |  array  | no | yes | the list of [Expression](#expression) |
+  | `id` | integer | no | yes | The smarttrigger id  |
+  | `position` | integer | no | yes |  The smarttrigger order number. |
 
 ### Smart Trigger End Points  
 ##### Get all smart triggers of the bot
@@ -1395,52 +1210,31 @@ path parameters
 ###### Response   
 the response is: Http Status Code `200 OK`
 
-##### Copy a smart trigger as new smart trigger
- 
-  `POST /api/v1/bot/bots/{botId}/smartTrigger/{id}/copy`
+##### Update the order of smart triggers
+
+  `PUT /api/v1/bot/bots/{botId}/smartTriggers/order`
     
-#### Parameters  
-  path parameters
-
-  - `botId`   
-  - `id`  
-
-  request body parameters
-   
-  - `name` 
-
-##### Response
-the response is:
-
-  - `id`  -required,int ,the newly created smart trigger id.
-
-#### Check if the smart trigger name is exists
- 
-  `GET /api/v1/bot/bots/{botId}/smartTriggers/{id}/checkName`
-    
-##### Parameters  
+###### Parameters  
 path parameters
 
-  - `botId`  
-  - `id`  
+  - `botId` 
 
-query parameters
+ request body parameters
+  - an array list of [Order](#Order) Object
 
-  - `name `  
-
-###### Response   
-the response is:
-
-  - `isExists` - true exists; false not exists.
-
+###### Response
+      
+  the response is: Http Status Code `200 OK`
+    
+##### Remove a smart trigger
  ## Quick Reply
   You need `Manage Bot` permission to manage Quick Reply and customize the settings for a Quick Reply.
   - `Quick Replies` - Quick Reply Manage
-    + `GET /api/v1/bot/bots/{botId}/quickreplies` - [Get quick replies of a bot by name](#get-quick-replies-of-a-bot-by-name)
+    + `GET /api/v1/bot/bots/{botId}/quickreplies` - [Get all quick replies of a bot](#get-all-quick-replies-of-a-bot)
     + `POST /api/v1/bot/bots/{botId}/quickreplies` - [Create a new quick reply](#create-a-new-quick-reply)
+    + `GET /api/v1/bot/bots/{botId}/quickreplies/{id}` - [GET a quick reply](#get-a-quick-reply)
     + `PUT /api/v1/bot/bots/{botId}/quickreplies/{id}` - [Update a quick reply](#update-a-quick-reply)
     + `DELETE /api/v1/bot/bots/{botId}/quickreplies/{id}` - [Remove a quick reply](#remove-a-quick-reply)
-    + `GET /api/v1/bot/bots/{botId}/quickreplies/{id}/checkName` - [Check if the quick reply name is exists](#check-if-the-quick-reply-name-is-exists)
 
 ### Quick Reply Json Format
 #### Quick Reply Object
@@ -1448,23 +1242,23 @@ the response is:
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `id` | integer  | yes | no | id of the campaign |
-  | `name` | string  | no | yes | name of the campaign |
-  | `subItems` | list of [Quick Reply Item](#Quick-Reply-Item) Objects   | no | yes | the items of quick reply |
+  | `id` | integer  | yes | no | id of the Quick Reply |
+  | `name` | string  | no | yes | name of the Quick Reply |
+  | `items` | list of [Quick Reply Item](#Quick-Reply-Item) Objects   | no | yes | the items of quick reply |
 
 #### Quick Reply Item Object
  QuickReplyItem is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `id` | integer  | yes | no | id of the Entity |
-  | `itemType` | string  | no | yes | two types, gotointent and contactagent |
-  | `itemName` | string  | no | no | when item type is gotointent, it is the name of the intent or it is null |
-  | `intentId` | integer  | no | no | when item type is gotointent, it is the id of the intent or it is null |
+  | `id` | integer  | yes | no | id of Quick Reply item |
+  | `type` | string  | no | yes | enum value, `goToIntent` and `contactAgent` |
+  | `name` | string  | no | no | when item type is goToIntent, it is the name of the intent or it is empty string |
+  | `intentId` | integer  | no | no | when item type is goToIntent, it is the id of the intent or it is 0 |
 
 ### Quick Reply End Points
 
-#### Get quick replies of a bot by name
+#### Get all quick replies of a bot
 
   `GET /api/v1/bot/bots/{botId}/quickreplies`
 
@@ -1473,12 +1267,8 @@ path parameters
 
   - `botId`
 
-query parameters
-
-  - `name ` 
-
 ##### Response
-the response is: list of [QuickReply](#quickreply) Objects
+the response is: list of [QuickReply](#quick-reply-object) Objects
 
 #### Create a new quick reply
 
@@ -1489,10 +1279,23 @@ path parameters
 
   - `botId` 
 
-request body parameters: [QuickReply](#quickreply) Object
+request body parameters: [QuickReply](#quick-reply-object) Object
 
 ##### Response
-the response is: [QuickReply](#quickreply) Object
+the response is: [QuickReply](#quick-reply-object) Object
+
+## Get a quick reply
+
+  `PUT /api/v1/bot/bots/{botId}/quickreplies/{id}`
+
+##### Parameters
+path parameters
+
+  - `id`
+  - `botId` 
+
+##### Response
+the response is: [QuickReply](#quick-reply-object) Object
 
 ## Update a quick reply
 
@@ -1504,11 +1307,10 @@ path parameters
   - `id`
   - `botId` 
 
-request body parameters: [QuickReply](#quickreply) Object
+request body parameters: [QuickReply](#quick-reply-object) Object
 
 ##### Response
-the response is: [QuickReply](#quickreply) Object
-
+the response is: [QuickReply](#quick-reply-object) Object
 
 #### Remove a quick reply
 
@@ -1523,25 +1325,6 @@ path parameters
 ##### Response
 the response is: Http Status Code `200 OK`
 
-#### Check if the quick reply name is exists
-
- `GET /api/v1/bot/bots/{botId}/quickreplies/{id}/checkName`
- 
-##### Parameter
- path parameters
-
- - `botId `
- - `id `  -if new, it is -1
- 
-query parameters
-
-  - `name ` 
-
-##### Response
-the response is:
-
-  `isExists` - true exists; false not exists.  
-
 ## Learning Question
   You need `Manage Bot` permission to manage Learning Question and customize the settings for a Learning Question.
   - `Learning Questions` - Learning Question Manage
@@ -1552,17 +1335,18 @@ the response is:
 #### LearningQuestion
   LearningQuestion is represented as simple flat JSON objects with the following keys:  
 
-  | Name | Type | Read-only | Mandatory | Description |    
-  | - | - | :-: | :-: | - | 
-  | `id` | integer  | yes | no | id of the Entity |
-  | `botName` | string  | no | yes | name of the bot |
-  | `chatId` | int  | no | yes | id of the chat |
-  | `userQuestion` | string  | no | yes | visitor asked question |
-  | `intentId` | string  | no | no | id of the intent |
-  | `intentName` | string  | no | no | name of the intent |
-  | `score` | string  | no | yes | match score between the visitor question and itent. |
-  | `rateType` | string  | no | no | enum type. `helpfull`, `notHelpfull`, `none` |
-  | `answerType` | string  | no | no | enum type. `highConfidenceAnswer`, `possibleAnswer`, `noAnswer`, `none` |
+  | Name | Type | Description |    
+  | - | - | - | 
+  | `id` | integer  | id of Learning Question |
+  | `botName` | string  | name of the bot |
+  | `chatId` | int  | id of the chat |
+  | `question` | string  | visitor asked question |
+  | `intentId` | string  | id of the intent |
+  | `intentName` | string  | name of the intent |
+  | `score` | string  | match score between the visitor question and itent. |
+  | `rateType` | string  | enum type. `helpfull`, `notHelpfull`, `none` |
+  | `answerType` | string  | enum type. `highConfidenceAnswer`, `possibleAnswer`, `noAnswer`, `none` |
+  | `questionAskedTime` | datetime  | question asked time |
 
 ### Learning Question End Points
 #### Get all learning questions of a bot
@@ -1576,9 +1360,9 @@ path parameters
 
 query parameters
 
-  - `timeFrom ` -query start time. used when dateRange is 9.
-  - `dateRange ` -query type, it is a Enum. `Today`, `Yesterday`, `ThisWeek`, `LastWeek`, `Last7Days`, `Last14Days`, `ThisMonth`, `Last30Days`, `Custom`, `Last7DaysIncludeToday`.
-  - `timeTo ` -query end time. used when dateRange is 9.
+  - `timeFrom ` -query start time.
+  - `timeTo ` -query end time.
+  - `timezone ` -
 
 ##### Response
 
@@ -1598,16 +1382,15 @@ path parameters
 the response is: Http Status Code `200 OK`
 
 ## report
-  You need `Manage Bot` permission to manage report.
   - `Reports` - Bot Manage
-    + `POST /api/v1/bot/reports/chat` - [Chat report](#chat-report)
-    + `POST /api/v1/bot/reports/answer` - [Answer report](#answer-report)
-    + `POST /api/v1/bot/reports/highConfidenceAnswer` - [High confidence answer report](#high-confidence-answer-report)
-    + `POST /api/v1/bot/reports/rating` - [Rating report](#rating-report)
-    + `POST /api/v1/bot/reports/botAgent` - [Bot versus agent report](#bot-versus-agent-report)
-    + `POST /api/v1/bot/reports/last7DaysSummary` - [Last 7 days summary report](#last-7-days-summary-report)
-    + `POST /api/v1/bot/reports/last7DaysDaily` - [Last 7 days daily report](#last-7-days-daily-report)
-    + `POST /api/v1/bot/reports/export`  - [Export report by report type](#export-report-by-report-type)
+    + `GET /api/v1/bot/reports/chat` - [Chat report](#chat-report)
+    + `GET /api/v1/bot/reports/answer` - [Answer report](#answer-report)
+    + `GET /api/v1/bot/reports/highConfidenceAnswer` - [High confidence answer report](#high-confidence-answer-report)
+    + `GET /api/v1/bot/reports/rating` - [Rating report](#rating-report)
+    + `GET /api/v1/bot/reports/botAgent` - [Bot versus agent report](#bot-versus-agent-report)
+    + `GET /api/v1/bot/reports/last7DaysSummary` - [Last 7 days summary report](#last-7-days-summary-report)
+    + `GET /api/v1/bot/reports/last7DaysDaily` - [Last 7 days daily report](#last-7-days-daily-report)
+    + `GET /api/v1/bot/reports/export`  - [Export report by report type](#export-report-by-report-type)
 
 ### Report Related Object Json Format
 #### ReportParameters
@@ -1615,23 +1398,24 @@ the response is: Http Status Code `200 OK`
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `filterType` | integer  | no | yes | Enum type, `Site`, `Department`, `Agent`, `Campaign`, `Category`, `VisitorSegment`, `Conversion`, `Bot` |
+  | `siteId` | integer  | no | yes | query site id |
+  | `filterType` | string  | no | yes | Enum type, `Site`, `Department`, `Agent`, `Campaign`, `Category`, `VisitorSegment`, `Conversion`, `Bot`, `Facebook Page`, `Twitter Account` |
   | `filterValue` | string  | no | yes | value of the filter |
   | `timeFrom` | datetime  | no | yes | query start time |
   | `timeTo` | datetime  | no | yes | query end time |
-  | `displayBy` | string  | no | yes | query type, it is a Enum. `Today`, `Yesterday`, `ThisWeek`, `LastWeek`, `Last7Days`, `Last14Days`, `ThisMonth`, `Last30Days`, `Custom`, `Last7DaysIncludeToday`. |
-  | `dateFormat` | string  | no | yes | Format of the date |
-  | `dimensionType` | string  | no | yes | Enum type,  `ByWebSite`, `ByTime`, `ByDepartment`, `ByAgent`, `ByCampaign`, `ByVisitorSegment`, `RequestPage`, `ChangeLog`, `Survey`, `ByInvitation`, `ByQueue`, `CannedMessage`, `ChatbotChats`, `ChatbotAnswers`, `ChatbotHightFidenceAnswers`, `ByConversionAction`, `ConversionList`. |
+  | `timeZone` | string  | no | yes | ±hh:mm, in the [TZ format](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), defaults to UTC time |
+  | `displayBy` | string  | no | yes | query type, it is a Enum. `Day`, `Week`, `Month`. |
+  | `dimensionType` | string  | no | yes | Enum type,  `ByWebSite`, `ByTime`, `ByDepartment`, `ByAgent`, `ByCampaign`, `ByVisitorSegment`, `RequestPage`, `ChangeLog`, `Survey`, `ByInvitation`, `ByQueue`, `CannedMessage`, `ChatbotChats`, `ChatbotAnswers`, `ChatbotHightFidenceAnswers`, `ByConversionAction`, `ConversionList`,`allChannel`,`defaultChannel`,`livechatChannel`,`facebookChannel`, `twitterChannel`. |
 
 #### ChatReport
   ChatReport is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `totalChats` | int  | no | yes | total chats count |
-  | `totalAgentOnly` | int  | no | yes | total agent only chats count |
-  | `totalChatbotOnly` | int  | no | yes | total chatbot only chats count |
-  | `totalFromBotToAgent` | int  | no | yes | total transferred from chatbot to agent chats count |
+  | `botResolved` | int  | no | yes |  |
+  | `botUnResolved` | int  | no | yes |  |
+  | `botTransferedAgent` | int  | no | yes |  |
+  | `botTransferedOfflineMessage` | int  | no | yes |  |
   | `dataList` | object  | no | yes | list of [ChatReportDetail](#chatreportdetail) Object  |
 
 #### ChatReportDetail
@@ -1639,10 +1423,10 @@ the response is: Http Status Code `200 OK`
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `chatsCount` | int  | no | yes | total chats count |
-  | `agentOnlyCount` | int  | no | yes | total agent only chats count |
-  | `botOnlyCount` | int  | no | yes | total chatbot only chats count |
-  | `botToAgentCount` | int  | no | yes | total transferred from chatbot to agent chats count |
+  | `botResolved` | int  | no | yes |  |
+  | `botUnResolved` | int  | no | yes |  |
+  | `botTransferedAgent` | int  | no | yes |  |
+  | `botTransferedOfflineMessage` | int  | no | yes |  |
   | `time` | datetime  | no | yes | statistical time |
 
 #### AnswerReport
@@ -1674,7 +1458,7 @@ the response is: Http Status Code `200 OK`
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `totalHelpful` | int  | no | yes | percentage of high configdence answer |
+  | `totalHelpful` | int  | no | yes | high configdence answers count |
   | `totalHighConfidence` | int  | no | yes | total answers count |
   | `totalNoRate` | int  | no | yes | total high configdence answers count |
   | `totalNotHelpful` | int  | no | yes | total no answers count |
@@ -1696,10 +1480,13 @@ the response is: Http Status Code `200 OK`
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `totalHelpful` | int  | no | yes | percentage of high configdence answer |
-  | `totalHighConfidence` | int  | no | yes | total answers count |
-  | `totalNoRate` | int  | no | yes | total high configdence answers count |
-  | `totalNotHelpful` | int  | no | yes | total no answers count |
+  | `avgScore` | int  | no | yes | average score |
+  | `ratingTimes` | int  | no | yes | rating times |
+  | `score1Times` | int  | no | yes | the rating score is 1 times |
+  | `score2Times`  | int  | no | yes | the rating score is 2 times |
+  | `score3Times`  | int  | no | yes | the rating score is 3 times |
+  | `score4Times`  | int  | no | yes | the rating score is 4 times |
+  | `score5Times`  | int  | no | yes | the rating score is 5 times |
   | `dataList` | object  | no | yes | list of [RatingReportDetail](#ratingreportdetail) Object  |
 
 #### RatingReportDetail
@@ -1721,10 +1508,9 @@ the response is: Http Status Code `200 OK`
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `totalHelpful` | int  | no | yes | total helpful answers count |
-  | `totalHighConfidence` | int  | no | yes | total high configdence answers count |
-  | `totalNoRate` | int  | no | yes | total no rate answers count |
-  | `totalNotHelpful` | int  | no | yes | total not helpful answers count |
+  | `avgScore` | double  | no | yes | average score |
+  | `avgTime` | double  | no | yes | average time |
+  | `chats` | int  | no | yes | chats |
   | `agents` | object  | no | yes | list of [BotAgentReportDetail](#botagentreportdetail) Object  |
   | `bots` | object  | no | yes | list of [BotAgentReportDetail](#botagentreportdetail) Object  |
 
@@ -1736,8 +1522,6 @@ the response is: Http Status Code `200 OK`
   | `avgScore` | double  | no | yes | average score |
   | `avgTime` | double  | no | yes | average time |
   | `chats` | int  | no | yes | chats |
-  | `transferred` | int  | no | transferred |
-  | `totalTransferred` | int  | no | yes | totalTransferred |
   | `time` | datetime  | no | yes | statistical time |
 
 #### Last7DaysSummaryReport
@@ -1745,13 +1529,11 @@ the response is: Http Status Code `200 OK`
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `averageCostPerChat` | double  | no | yes | average cost per chat |
   | `averageRatingScore` | double  | no | yes | average rating score |
   | `botOnlyChatsCount` | double  | no | yes | bot only chats count |
   | `botOnlyChatsTime` | double  | no | yes | bot only chats time |
   | `botAnswersCount` | double  | no | yes | bot answers count |
   | `chatsFromBotToAgentCount` | int  | no | yes | transferred from bot to agent chats count |
-  | `highConfidenceAnswersCount` | int  | no | yes | high confidence answers count |
   | `percentageOfBotOnlyChats` | double  | no | yes | helpful answers count |
   | `percentageOfHighConfidenceAnswers` | double  | no | yes | percentage of high confidence answers |
 
@@ -1760,9 +1542,7 @@ the response is: Http Status Code `200 OK`
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `totalAgentOnly` | int  | no | yes | total agent only chats count |  
   | `totalChatbotOnly` | int  | no | yes | total bot only chats count |
-  | `totalChats` | int  | no | yes | total chats count |
   | `totalFromBotToAgent` | int  | no | yes | total transferred from bot to agent chats count |
   | `totalPercentageOfBotOnlyChats` | double  | no | yes | total percentage of bot only chats |
   | `detailedData` | object  | no | yes | list of [Last7DaysDailyReportDetail](#last7daysdailyreportdetail) Object  |
@@ -1781,114 +1561,84 @@ the response is: Http Status Code `200 OK`
 ### Report End Points  
 #### Chat report
 
-  `POST /api/v1/bot/reports/chat`
+  `GET /api/v1/bot/reports/chat`
 
 ##### Parameters
-query parameters
-
-  - `siteId ` 
-
-request body parameters: [ReportParameters](#reportparameters) Object
+query parameters: [ReportParameters](#reportparameters) Object
 
 ##### Response
 the response is: [ChatReport](#chatreport) Object
 
 #### Answer report
 
-  `POST /api/v1/bot/reports/answer`
+  `GET /api/v1/bot/reports/answer`
 
 ##### Parameters
-query parameters
-
-  - `siteId ` 
-
-request body parameters: [ReportParameters](#reportparameters) Object
+query parameters: [ReportParameters](#reportparameters) Object
 
 ##### Response
 the response is: [AnswerReport](#answerreport) Object
 
 #### High confidence answer report
 
-  `POST /api/v1/bot/reports/highConfidenceAnswer`
+  `GET /api/v1/bot/reports/highConfidenceAnswer`
 
 ##### Parameters
-query parameters
-
-  - `siteId ` 
-
-request body parameters: [ReportParameters](#reportparameters) Object
+query parameters: [ReportParameters](#reportparameters) Object
 
 ##### Response
 the response is: [HighConfidenceReport](#highconfidencereport) Object
     
 #### Rating report
 
-  `POST /api/v1/bot/reports/rating`
+  `GET /api/v1/bot/reports/rating`
 
 ##### Parameters
-query parameters
-
-  - `siteId ` 
-
-request body parameters: [ReportParameters](#reportparameters) Object
+query parameters: [ReportParameters](#reportparameters) Object
 
 ##### Response
 the response is: [RatingReport](#ratingreport) Object
     
 #### Bot versus agent report
 
-  `POST /api/v1/bot/reports/botAgent`
+  `GET /api/v1/bot/reports/botAgent`
 
 ##### Parameters
-query parameters
-
-  - `siteId `  
-
-request body parameters: [ReportParameters](#reportparameters) Object
+query parameters: [ReportParameters](#reportparameters) Object
 
 ##### Response
 the response is: [BotAgentReport](#botagentreport) Object
     
 #### Last 7 days summary report
 
-  `POST /api/v1/bot/reports/last7DaysSummary`
+  `GET /api/v1/bot/reports/last7DaysSummary`
 
 ##### Parameters
-query parameters
-
-  - `siteId ` 
-
-request body parameters: [ReportParameters](#reportparameters) Object
+query parameters: [ReportParameters](#reportparameters) Object
 
 ##### Response
 the response is: [Last7DaysSummaryReport](#last7dayssummaryreport) Object
     
 #### Last 7 days daily report
 
-  `POST /api/v1/bot/reports/last7DaysDaily`
+  `GET /api/v1/bot/reports/last7DaysDaily`
 
 ##### Parameters
-query parameters
-
-  - `siteId ` 
-
-request body parameters: [ReportParameters](#reportparameters) Object
+query parameters: [ReportParameters](#reportparameters) Object
 
 ##### Response
 the response is: [Last7DaysDailyReport](#last7daysdailyreport) Object
     
 #### Export report by report type
 
-  `POST /api/v1/bot/reports/export `
+  `GET /api/v1/bot/reports/export `
 
 ##### Parameters
 query parameters
 
-  - `siteId ` 
+  - [ReportParameters](#reportparameters) Object
   - `reportType ` -Enum value: `chat`, `response`, `highConfidenceResponse`, `rating`, `botAgent`, `last7DaysDaily`
   
-request body parameters: [ReportParameters](#reportparameters) Object
-
 ##### Response
 the response is:
 
@@ -1897,13 +1647,24 @@ the response is:
 ## General
   You need `Manage Bot` permission to manage General settings.
   - `General` 
-    + `POST /api/v1/bot/files` - [Upload file temporarily, the file will be deleted in 3 hours](#upload-file-temporarily,-the-file-will-be-deleted-in-3-hours)
+    + `POST /api/v1/bot/file` - [Upload file temporarily, the file will be deleted in 3 hours](#upload-file-temporarily-and-the-file-will-be-deleted-in-3-hours)
+    + `POST /api/v1/bot/image`  - [Upload image](#upload-image)
     + `POST /api/v1/bot/newBotRequest` - [Request to create a new bot](#request-to-create-a-new-bot)
     + `GET /api/v1/bot/defaultAvatar` - [Get the default avatar of bot](#get-the-default-avatar-of-bot)
     + `GET /api/v1/bot/quota` - [Get used quotas and quota balance of a site](#get-used-quotas-and-quota-balance-of-a-site)
     + `GET /api/v1/bot/languages` - [Get all supported languages](#get-all-supported-languages)
-    + `GET /api/v1/bot/smartTriggerConfig` - [Get the smart trigger condition, action and expression configuration settings](#get-the-smart-trigger-condition,-action-and-expression-configuration-settings)
-    + `GET /api/v1/bot/prebuiltEntities` - [Get all prebuilt entities](#get-all-prebuilt-entities)
+    + `GET /api/v1/bot/operations/{id}` - [Get the operations such as import or train status](#get-the-operations-such-as-import-or-train-status)
+    + `GET /api/v1/bot/prebuiltEntities` - [Get all Prebuilt Entities](#get-all-prebuilt-entities)
+
+#### PrebuiltEntity
+  PrebuiltEntity is represented as simple flat JSON objects with the following keys:  
+
+  | Name | Type | Read-only | Mandatory | Description |    
+  | - | - | :-: | :-: | - | 
+  | `name` | integer  | no | yes | name of the prebuilt entity |
+  | `displayName` | integer  | no | yes | display name of the prebuilt entity |
+  | `description` | integer  | no | yes | description of the prebuilt entity |
+  | `example` | integer  | no | yes |example of the prebuilt entity |
 
 ### General Related Object Json Format
 #### NewBotRequest
@@ -1916,15 +1677,12 @@ the response is:
   | `email` | string  | no | yes | email of the applier |
   | `botName` | string  | no | yes | bot Name in the Requested bot |
   | `language` | string  | no | yes | bot language of the Requested bot |
-  | `isCreateBotFromTranscript` | bool  | yes | no | is Create a new Bot From the Transcript of the site |
-  | `note` | string  | yes | no | comment of the Request |
 
-#### MonthlyQuota Object
+#### MonthlyQuota
   MonthlyQuota is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `siteId` | integer  | no | yes | id of the site |
   | `balance` | integer  | no | yes | the current month quota balance of the site |
   | `used` | integer  | no | yes | the current month used quotas of the site |
 
@@ -1937,9 +1695,9 @@ the response is:
   | `name` | string  | no | yes | the name of the Language |
 
 ### General End Points
-#### Upload file temporarily, the file will be deleted in 3 hours
+#### Upload file temporarily and the file will be deleted in 3 hours
 
-  `POST /api/v1/bot/files`
+  `POST /api/v1/bot/file`
 
 ##### Parameters
 
@@ -1955,7 +1713,19 @@ request body parameters
 the response is:
 
   - `fileName` -the uploaded file full name
-       
+
+#### Upload image
+
+  `POST /api/v1/bot/image`
+
+##### Parameters
+request body parameters
+
+  - `file ` -the file content. it is a list
+
+##### Response
+the response is: [NameUrl](#nameurl) Object
+
 #### Request to create a new bot
 
   `POST /api/v1/bot/newBotRequest`
@@ -1990,7 +1760,7 @@ query parameters
   - `siteId ` 
 
 ##### Response
-the response is: [MonthlyQuota](#MonthlyQuota) Object
+the response is: [MonthlyQuota](#monthlyquota) Object
     
 #### Get all supported languages
 
@@ -2000,17 +1770,34 @@ the response is: [MonthlyQuota](#MonthlyQuota) Object
 no parameters
 
 ##### Response
-the response is: list of [Language](#Language) Objects
+the response is: list of [Language](#language-object) Objects
 
-#### Get the smart trigger condition, action and expression configuration settings
+#### Get the operations such as import or train status
 
-  `GET /api/v1/bot/SmartTriggerConfig`
-  
-###### Parameters
-no parameters
+  `GET /api/v1/bot/operations/{id}`
 
-###### Response
-the response is: list of [SmartTriggerConfig](#smartTriggerconfig)  Objects.
+##### Parameters
+path parameters
+
+  - `id`
+
+##### Response
+the response is:
+
+when the status is `Processing `:
+
+  - `status ` -enum values, `Succeeded `,`Failed `,`Processing `
+  - `operationId ` -true or false
+
+when the status is `Failed `:
+
+  - `status ` -enum values, `Succeeded `,`Failed `,`Processing `
+  - `failUrl ` -true or false
+  - `errorMessage ` -true or false
+
+when the status is `Succeeded `:
+
+  - `status ` -enum values, `Succeeded `,`Failed `,`Processing `
 
 #### Get all prebuilt entities
 
@@ -2020,4 +1807,4 @@ the response is: list of [SmartTriggerConfig](#smartTriggerconfig)  Objects.
 no parameters
 
 ##### Response
-the response is: list of [PrebuiltEntity](#prebuiltentity) Objects       
+the response is: list of [Prebuilt Entity](#prebuiltentity) Objects    
