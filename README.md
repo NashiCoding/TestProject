@@ -266,7 +266,6 @@
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `result` | string  | no | yes | message of the rate |
   | `smartTriggerActions` | [SmartTriggerAction](#smarttriggeraction)  | no | yes | an array of smart trigger actions |
 
 #### CreateBot
@@ -1018,7 +1017,7 @@ when the status is `Succeeded `:
   You need `Manage Bot` permission to manage bot category and customize the settings for a bot category.
   - `Categories` - Category Manage
     + `GET /api/v1/bot/bots/{botId}/categories` - [Get all categories of the bot](#get-all-categories-of-the-bot)
-    + `POST /api/v1/bot/bots/{botId}/categories` - [Create a new category](#create-a-by-new-category)
+    + `POST /api/v1/bot/bots/{botId}/categories` - [Create a new category](#create-a-new-category)
     + `PUT /api/v1/bot/bots/{botId}/categories/{id}` - [Update a category](#update-a-category)
     + `DELETE /api/v1/bot/bots/{botId}/categories/{id}` - [Remove a category](#remove-a-category)
 
