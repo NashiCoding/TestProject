@@ -77,7 +77,7 @@
   | `current_browsing` | string | no | yes | page of the current browsing |
   | `custom_fields` | [CustomFields](#customfields) | no | yes | an array of custom fields |
   | `custom_variables` | [CustomVariables](#customvariables) | no | yes | an array of custom variables |
-  | `department` | string | no | yes | department of the visitor |
+  | `department` | int | no | yes | department of the visitor |
   | `email` | string | no | yes | email of the visitor |
   | `first_visit_time` | string | no | yes | the time of first visit |
   | `flash_version` | string | no | yes | version of the flash |
@@ -231,7 +231,7 @@
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `requestVisitorLocationMessege` | string  | no | yes | message of the request visitor location |
+  | `requestVisitorLocationMessage` | string  | no | yes | message of the request visitor location |
   | `askVisitorShareLocationText` | string  | no | yes | text of the ask visitor share location |
   | `url` | string  | no | yes | url |
   | `smartTriggerActions` | [SmartTriggerAction](#actionex)  | no | yes | an array of smart trigger actions |
@@ -310,9 +310,9 @@
   | `possibleResponsesExceedThresholdMessage` | string  | no | yes | possible responses exceed threshold message |  
   | `agentIsOnlineText` | string  | no | yes | agent is online text |  
   | `agentIsOfflineText` | string  | no | yes | agent is offline text |  
-  | `transferAgentMessege` | string  | no | yes | transfer agent messege |  
-  | `leaveAMessageClickedMessege` | string  | no | yes | leave a message button clicked messege |  
-  | `requestVisitorLocationMessege` | string  | no | yes | request visitor location messege |  
+  | `transferAgentMessage` | string  | no | yes | transfer agent message |  
+  | `leaveAMessageClickedMessage` | string  | no | yes | leave a message button clicked message |  
+  | `requestVisitorLocationMessage` | string  | no | yes | request visitor location message |  
   | `locationButtonText` | string  | no | yes | location button text |  
   | `submitButtonText` | string  | no | yes | submit button text |  
   | `cancelButtonText` | string  | no | yes | cancel button text |  
@@ -375,7 +375,7 @@ query parameters
 request body parameters: [CreateBot](#createbot) Object
 
 ##### Response
-the response :  [BotBasic](#botbasic) Object
+the response is: [Bot](#bot-object) Object
 
 #### Update a bot
 
@@ -905,8 +905,8 @@ when the status is `Succeeded `:
 
   | Name | Type | Read-only | Mandatory | Description |    
   | - | - | :-: | :-: | - | 
-  | `id` | integer  | yes | no | id of the Entity |
-  | `keyword` | string  | no | yes | name of the Entity |
+  | `id` | integer  | yes | no | id of the entity keyword object |
+  | `keyword` | string  | no | yes | Keyword |
   | `synonyms` | list of string  | no | yes | synonyms list of keyword |
 
 
@@ -1126,14 +1126,14 @@ the response is: Http Status Code `200`
   | - | - | :-: | :-: | - |
   | `variable` | string | no | no | value of the Condition |
   | `expression` | string | no | yes |  the rule of expression.exp:[equal,notEqual,contains,notContains,regularExpression,lessThan,moreThan] |
-  | `values` | array | no | yes | an string array of condition matching value |
+  | `items` | array | no | yes | an string array of condition matching value |
  
 ####  Action
   Action is represented as simple flat JSON objects with the following keys:  
 
   | Name | Type | Read-only | Mandatory | Description |
   | - | - | :-: | :-: | - |
-  | `type` | string | no | yes | the type of the action. exp:[notifications,monitor,transfer,changeAssignee,segment]|
+  | `type` | string | no | yes | the type of the action. exp:[notification,monitor,transfer,changeAssignee,segment]|
   | `isEnabled` | boolean | no | yes | action if is enabled. |
   | `target` | [Target](#target) | no | no |  action target |
   | `agentOfflineMessage` | string | no | no | agent offlineMessage prompt message |
@@ -1143,7 +1143,7 @@ the response is: Http Status Code `200`
 
   | Name | Type | Read-only | Mandatory | Description |
   | - | - | :-: | :-: | - |
-  | `Action.type` | string | no | yes | the type of the action. exp:[notifications,monitor,transfer,changeAssignee,segment]|
+  | `Action.type` | string | no | yes | the type of the action. exp:[notification,monitor,transfer,changeAssignee,segment]|
   | `Action.isEnabled` | boolean | no | yes | action if is enabled. |
   | `Action.target` | [Target](#target) | no | no |  action target |
   | `Action.agentOfflineMessage` | string | no | no | agent offlineMessage prompt message |
@@ -1279,7 +1279,7 @@ path parameters
   | - | - | :-: | :-: | - | 
   | `id` | integer  | yes | no | id of the Quick Reply |
   | `name` | string  | no | yes | name of the Quick Reply |
-  | `items` | list of [Quick Reply Item](#Quick-Reply-Item) Objects   | no | yes | the items of quick reply |
+  | `items` | list of [Quick Reply Item](#Quick-Reply-Item) Objects   | no | no | the items of quick reply |
 
 #### Quick Reply Item Object
  QuickReplyItem is represented as simple flat JSON objects with the following keys:  
@@ -1691,6 +1691,7 @@ the response is:
     + `GET /api/v1/bot/languages` - [Get all supported languages](#get-all-supported-languages)
     + `GET /api/v1/bot/operations/{id}` - [Get the operations such as import or train status](#get-the-operations-such-as-import-or-train-status)
     + `GET /api/v1/bot/prebuiltEntities` - [Get all Prebuilt Entities of a language](#get-all-prebuilt-entities-of-a-language)
+    + `GET /api/v1/bot/settings` - [Get settings](#get-settings)
 
 #### PrebuiltEntity
   PrebuiltEntity is represented as simple flat JSON objects with the following keys:  
@@ -1856,3 +1857,16 @@ path parameters
 
 ##### Response
 the response is: list of [Prebuilt Entity](#prebuiltentity) Objects    
+
+##### Get settings
+ 
+`GET /api/v1/bot/settings`
+###### Parameters
+ 
+query parameters
+- `languageCode` -string, the code of language.
+- `type` -string, exp:smarttriggerOfflineMessage
+ 
+####### Response
+ 
+- `message` -the message of settings
